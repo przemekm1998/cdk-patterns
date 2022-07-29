@@ -1,0 +1,44 @@
+service: aws-node-project
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  stackName: ${file(./${self:custom.confFile}):stackName}
+  iamRoleStatements: ${file(./${self:custom.confFile}):iam}
+
+functions:
+  createdStatus:
+    handler: src/index.createHandler
+    timeout: 6
+    memorySize: 128
+    events:
+      - sqs:
+          arn: ${file(./${self:custom.confFile}):createHandlerSqsArn}
+  otherStatus:
+    handler: src/index.othersHandler
+    timeout: 6
+    memorySize: 128
+    events:
+      - sqs:
+          arn: ${file(./${self:custom.confFile}):otherHandlerSqsArn}
+  postMessage:
+    handler: src/index.postMessageHandler
+    events:
+      - http:
+          path: message
+          method: post
+    environment: ${file(./${self:custom.confFile}):postMessage.environment}
+
+custom:
+  confFile: serverless.conf.yml
+
+package:
+  exclude:
+    - .git/**
+    - node_modules/**
+    - aws/**
+
+plugins:
+  - serverless-offline

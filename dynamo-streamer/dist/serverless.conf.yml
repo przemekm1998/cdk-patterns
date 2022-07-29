@@ -1,0 +1,21 @@
+stackName: "TheDynamoStreamerStack"
+
+iam:
+  - Effect: "Allow"
+    Action:
+      - "dynamodb:PutItem"
+    Resource: { Fn::ImportValue: "TheDynamoStreamerDbTableArnId" }
+  - Effect: "Allow"
+    Action:
+      - "dynamodb:DescribeStream"
+      - "dynamodb:GetRecords"
+      - "dynamodb:GetShardIterator"
+      - "dynamodb:ListStreams"
+    Resource: { Fn::ImportValue: "TheDynamoStreamerDbStreamArnId" }
+
+dynamoDbTableArn: { Fn::ImportValue: "TheDynamoStreamerDbTableArnId" }
+dynamoDbTableStreamArn: { Fn::ImportValue: "TheDynamoStreamerDbStreamArnId" }
+
+saveMessage:
+  environment:
+    TABLE_NAME: { Fn::ImportValue: "TheDynamoStreamerDbTableName" }

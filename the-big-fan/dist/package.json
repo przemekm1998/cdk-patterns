@@ -1,0 +1,19 @@
+{
+  "name": "src",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "rebuild": "(if exist dist rmdir /Q /S dist) && tsc && copy package.json dist\\package.json && (cd dist && yarn install --production)",
+    "watch": "tsc --watch"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "serverless-offline": "^9.1.0"
+  },
+  "dependencies": {
+    "@types/aws-lambda": "^8.10.101",
+    "aws-sdk": "^2.1183.0"
+  }
+}

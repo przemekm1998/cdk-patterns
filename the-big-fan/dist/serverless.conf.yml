@@ -1,0 +1,20 @@
+stackName: "TheBigFanStack"
+
+iam:
+  - Effect: "Allow"
+    Action:
+      - "sqs:ReceiveMessage"
+    Resource: [{ Fn::ImportValue: "BigFanTopicStatusCreatedSubscriberQueueArnId" }, { Fn::ImportValue: "BigFanTopicAnyOtherStatusSubscriberQueueArnId" }]
+  - Effect: "Allow"
+    Action:
+      - "sns:Publish"
+    Resource: { Fn::ImportValue: "TheBigFanTopicArnId" }
+
+snsTopicArn: { Fn::ImportValue: "TheBigFanTopicArnId" }
+createHandlerSqsArn: { Fn::ImportValue: "BigFanTopicStatusCreatedSubscriberQueueArnId" }
+otherHandlerSqsArn: { Fn::ImportValue: "BigFanTopicAnyOtherStatusSubscriberQueueArnId" }
+
+
+postMessage:
+  environment:
+    SNS_ARN: { Fn::ImportValue: "TheBigFanTopicArnId" }

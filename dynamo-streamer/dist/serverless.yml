@@ -1,0 +1,39 @@
+service: the-dynamo-streamer
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  stackName: ${file(./${self:custom.confFile}):stackName}
+  iamRoleStatements: ${file(./${self:custom.confFile}):iam}
+
+functions:
+  streamSubscriber:
+    handler: src/index.handleStream
+    timeout: 6
+    memorySize: 128
+    events:
+      - stream:
+          type: dynamodb
+          arn: ${file(./${self:custom.confFile}):dynamoDbTableStreamArn}
+
+  saveMessage:
+    handler: src/index.handleSaveMessage
+    timeout: 6
+    memorySize: 128
+    events:
+      - http:
+          method: POST
+          path: message
+    environment: ${file(./${self:custom.confFile}):saveMessage.environment}
+
+custom:
+  confFile: serverless.conf.yml
+
+package:
+  exclude:
+    - .git/**
+    - node_modules/**
+    - aws/**
+
