@@ -1,0 +1,14 @@
+stackName: "EventBridgeAtm"
+
+iam:
+  - Effect: "Allow"
+    Action:
+      - "events:PutEvents"
+    Resource: { Fn::ImportValue: "EventBusArnId" }
+
+eventBusName: "EventBusName"
+eventBusArnId: { Fn::ImportValue: "EventBusArnId" }
+
+postEvent:
+  environment:
+    EVENT_BUS_NAME: "EventBusName"

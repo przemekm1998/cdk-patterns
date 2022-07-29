@@ -1,0 +1,13 @@
+{
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "commonjs",
+    "sourceMap": true,
+    "noImplicitAny": true,
+    "strict": true,
+    "outDir": "./src",
+    "esModuleInterop": true
+  }
+}

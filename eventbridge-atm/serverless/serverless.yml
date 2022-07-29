@@ -1,0 +1,60 @@
+service: eventbridge-atm
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  stackName: ${file(./${self:custom.confFile}):stackName}
+  iamRoleStatements: ${file(./${self:custom.confFile}):iam}
+
+functions:
+  postEvent:
+    handler: src/index.handlePostEvent
+    timeout: 6
+    memorySize: 128
+    events:
+      - http:
+          method: POST
+          path: event
+    environment: ${file(./${self:custom.confFile}):postEvent.environment}
+
+  approvedHandler:
+    handler: src/index.approvedHandler
+    timeout: 6
+    memorySize: 128
+    events:
+      - eventBridge:
+          eventBus: ${file(./${self:custom.confFile}):eventBusArnId}
+          pattern:
+            source:
+              - 'custom.myAtmApp'
+            detail-type:
+              - 'transaction'
+            detail:
+              result: ['approved']
+
+  unapprovedHandler:
+    handler: src/index.unapprovedHandler
+    timeout: 6
+    memorySize: 128
+    events:
+      - eventBridge:
+          eventBus: ${file(./${self:custom.confFile}):eventBusArnId}
+          pattern:
+            source:
+              - 'custom.myAtmApp'
+            detail-type:
+              - 'transaction'
+            detail:
+              result: ['unapproved']
+
+custom:
+  confFile: serverless.conf.yml
+
+package:
+  exclude:
+    - .git/**
+    - node_modules/**
+    - aws/**
+
