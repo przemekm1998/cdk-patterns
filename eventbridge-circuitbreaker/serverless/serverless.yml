@@ -1,0 +1,45 @@
+service: circuit-breaker-event-bridge
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  stackName: ${file(./${self:custom.confFile}):stackName}
+  iamRoleStatements: ${file(./${self:custom.confFile}):iam}
+
+functions:
+  postEvent:
+    handler: src/index.postEvent
+    timeout: 6
+    memorySize: 128
+    events:
+      - http:
+          method: POST
+          path: event
+    environment: ${file(./${self:custom.confFile}):postEvent.environment}
+
+  errorHandler:
+    handler: src/index.handleError
+    timeout: 6
+    memorySize: 128
+    events:
+      - eventBridge:
+          eventBus: ${file(./${self:custom.confFile}):eventBusArn}
+          pattern:
+            source:
+              - custom.circuitbreaker
+#            detail-type:
+#              - httpcall
+#            detail:
+#              status:
+#                - fail
+
+custom:
+  confFile: serverless.conf.yml
+
+package:
+  exclude:
+    - .git/**
+    - node_modules/**
+    - aws/**

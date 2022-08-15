@@ -1,0 +1,25 @@
+stackName: "EventBridgeCircuitBreaker"
+
+iam:
+  - Effect: "Allow"
+    Action:
+      - "events:PutEvents"
+    Resource: { Fn::ImportValue: "CircuitBreakerEventBusArnId" }
+  - Effect: "Allow"
+    Action:
+      - "dynamodb:PutItem"
+      - "dynamodb:Query"
+    Resource:
+      - "Fn::ImportValue": "CircuitBreakerTableArnId"
+      - "Fn::Join": ['/', ["Fn::ImportValue": "CircuitBreakerTableArnId", 'index', '*']]
+  - Effect: "Allow"
+    Action:
+      - "lambda:InvokeFunction"
+    Resource: "*"
+
+eventBusName: "CircuitBreakerEventBus"
+eventBusArn: { Fn::ImportValue: "CircuitBreakerEventBusArnId" }
+
+postEvent:
+  environment:
+    EVENT_BUS_NAME: "CircuitBreakerEventBus"
